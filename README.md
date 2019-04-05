@@ -1,6 +1,6 @@
 # RulerView
 仿今日头条修改字体的控件
-![image](/RulerView/Screenshot_20190405-155105.jpg)
+![image](Screenshot_20190405-155105.jpg)
 How to
 
 To get a Git project into your build:
