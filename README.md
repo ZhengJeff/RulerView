@@ -18,13 +18,13 @@ dependencies {
 `
 ## 使用方法
 1. 
-`
+```
 <com.jeff.ruler.RulerView  
-android:id="@+id/ruler_view"  
-android:layout_width="wrap_content"  
-android:layout_height="wrap_content"  
-app:buttonImageSrc="@drawable/shape_circle" />
-`  
+  android:id="@+id/ruler_view"  
+  android:layout_width="wrap_content"  
+  android:layout_height="wrap_content"  
+  app:buttonImageSrc="@drawable/shape_circle" />
+```
 2. 设置绘制元素`rulerView.setData(mData);`
 ## 属性
 |属性名|类型|说明|
