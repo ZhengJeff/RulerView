@@ -49,6 +49,10 @@ public class RulerView extends View {
      */
     private Paint mPaint;
     /**
+     * 绘制文本的画笔
+     */
+    private Paint mTextPaint;
+    /**
      * 存放线条的边界
      */
     private Rect mRect;
@@ -115,6 +119,11 @@ public class RulerView extends View {
         mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, context.getResources().getDisplayMetrics()));
         //线条的边界
         mRect = new Rect();
+
+        mTextPaint = new Paint();
+        mTextPaint.setColor(paintColor);
+        mTextPaint.setAntiAlias(true);
+        mTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, context.getResources().getDisplayMetrics()));
         //自定义属性
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RulerView);
         paintColor = typedArray.getColor(R.styleable.RulerView_rulerLineColor, Color.GRAY);
@@ -125,10 +134,10 @@ public class RulerView extends View {
         }
         //初始化图片边界
         imgRect = new Rect(getPaddingLeft()
-                , (int) (getPaddingTop() + DEFAULT_TEXT_MARGIN + mPaint.getTextSize()),
+                , (int) (getPaddingTop() + DEFAULT_TEXT_MARGIN + mTextPaint.getTextSize()),
                 mButtonImage.getIntrinsicWidth() + getPaddingLeft(),
                 (int) (getPaddingBottom() + mButtonImage.getIntrinsicHeight() + DEFAULT_TEXT_MARGIN
-                        + mPaint.getTextSize()));
+                        + mTextPaint.getTextSize()));
         //添加指定padding，为图标做出一定距离
         setPadding((mButtonImage.getIntrinsicWidth() / 2) + getPaddingLeft(), getPaddingTop(), (mButtonImage.getIntrinsicWidth() / 2) + getPaddingRight(), getPaddingBottom());
         typedArray.recycle();
@@ -145,7 +154,7 @@ public class RulerView extends View {
         if (hDode == MeasureSpec.AT_MOST) {
             //如果是wrap_content，取最图片高度和竖直线条最大值然后加上文字margin和文本字体大小
             heightSize = (int) (Math.max(mButtonImage.getIntrinsicHeight(), verticalSize)
-                    + DEFAULT_TEXT_MARGIN + mPaint.getTextSize());
+                    + DEFAULT_TEXT_MARGIN + mTextPaint.getTextSize());
         }
         if (wMode == MeasureSpec.AT_MOST) {
             //如果宽度是wrap_content，通过数据的展示文本最大值加上图片宽度设置为宽度
@@ -154,7 +163,7 @@ public class RulerView extends View {
                 for (RulerData mDatum : mData) {
                     lengthSum += mDatum.getText().length();
                 }
-                widthSize = (int) (lengthSum * mPaint.getTextSize()) + mButtonImage.getIntrinsicWidth();
+                widthSize = (int) (lengthSum * mTextPaint.getTextSize()) + mButtonImage.getIntrinsicWidth();
             }
         }
         //设置宽高
@@ -175,7 +184,7 @@ public class RulerView extends View {
         //绘制横线
         canvas.drawRect(mRect, mPaint);
         //计算每份的距离大小
-        int priceSize = mRect.width() / (SCALE_SIZE - 1);
+        int priceSize = mRect.width() / (partSize - 1);
         //设置竖线的顶部边界
         mRect.top = mRect.top - OFFSET - DEFAULT_VERTICAL_SIZE;
         //遍历创建所有竖线
@@ -194,7 +203,8 @@ public class RulerView extends View {
             //绘制竖线
             canvas.drawRect(mRect, mPaint);
             //绘制竖线上展示的文本
-            canvas.drawText(mData.get(i).getText(), mRect.centerX() - mPaint.getTextSize(), imgRect.top - 10, mPaint);
+            String text = mData.get(i).getText();
+            canvas.drawText(text, mRect.centerX() - text.length() * 1.0f / 2 * mTextPaint.getTextSize(), imgRect.top - 10, mTextPaint);
         }
         //为游标设置边界
         mButtonImage.setBounds(imgRect);
@@ -244,7 +254,7 @@ public class RulerView extends View {
                     //横线的宽度
                     int lineWidth = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
                     //每份间距大小
-                    int price = lineWidth / (SCALE_SIZE - 1);
+                    int price = lineWidth / (partSize - 1);
                     //计算当前游标中心点在那个比例
                     double v = (imgRect.centerX() - getPaddingLeft()) * 1.0 / price;
                     //四舍五入计算位置
