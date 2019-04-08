@@ -2,7 +2,7 @@ package com.jeff.myapplication;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 
 import com.jeff.ruler.RulerData;
 import com.jeff.ruler.RulerView;
@@ -25,5 +25,11 @@ public class MainActivity extends AppCompatActivity {
             mData.add(data);
         }
         rulerView.setData(mData);
+        rulerView.setOnRulerChangeListener(new RulerView.OnRulerChangeListener() {
+            @Override
+            public void onRulerChange(int position, RulerData curData) {
+                Log.e("zjs",curData.getData().toString());
+            }
+        });
     }
 }

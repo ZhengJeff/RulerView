@@ -96,6 +96,8 @@ public class RulerView extends View {
      * ruler监听
      */
     private OnRulerChangeListener mListener;
+    private int maxLeft;
+    private int maxRight;
 
 
     public RulerView(Context context) {
@@ -132,14 +134,8 @@ public class RulerView extends View {
         if (mButtonImage == null) {
             throw new RuntimeException("请设置游标图片");
         }
-        //初始化图片边界
-        imgRect = new Rect(getPaddingLeft()
-                , (int) (getPaddingTop() + DEFAULT_TEXT_MARGIN + mTextPaint.getTextSize()),
-                mButtonImage.getIntrinsicWidth() + getPaddingLeft(),
-                (int) (getPaddingBottom() + mButtonImage.getIntrinsicHeight() + DEFAULT_TEXT_MARGIN
-                        + mTextPaint.getTextSize()));
-        //添加指定padding，为图标做出一定距离
-        setPadding((mButtonImage.getIntrinsicWidth() / 2) + getPaddingLeft(), getPaddingTop(), (mButtonImage.getIntrinsicWidth() / 2) + getPaddingRight(), getPaddingBottom());
+        //图片边界
+        imgRect = new Rect();
         typedArray.recycle();
     }
 
@@ -163,7 +159,8 @@ public class RulerView extends View {
                 for (RulerData mDatum : mData) {
                     lengthSum += mDatum.getText().length();
                 }
-                widthSize = (int) (lengthSum * mTextPaint.getTextSize()) + mButtonImage.getIntrinsicWidth();
+                widthSize = (int) (lengthSum * mTextPaint.getTextSize())
+                        + mButtonImage.getIntrinsicWidth() + getPaddingLeft() + getPaddingRight();
             }
         }
         //设置宽高
@@ -176,11 +173,12 @@ public class RulerView extends View {
         if (mData == null || mData.isEmpty()) {
             return;
         }
+
         //计算横线的边界数值
         mRect.top = imgRect.centerY() - OFFSET;
         mRect.bottom = imgRect.centerY() + OFFSET;
-        mRect.left = getPaddingLeft();
-        mRect.right = width - getPaddingRight();
+        mRect.left = getPaddingLeft() + maxLeft;
+        mRect.right = width - maxRight - getPaddingRight();
         //绘制横线
         canvas.drawRect(mRect, mPaint);
         //计算每份的距离大小
@@ -191,10 +189,10 @@ public class RulerView extends View {
         for (int i = 0; i < partSize; i++) {
             //最后一个竖线绘制地方需要往里面移动
             if (i == priceSize - 1) {
-                mRect.left = priceSize * i + getPaddingLeft() - OFFSET * 2;
-                mRect.right = priceSize * i + getPaddingLeft();
+                mRect.left = priceSize * i + maxLeft + getPaddingLeft() - OFFSET * 2;
+                mRect.right = priceSize * i + maxLeft + getPaddingLeft();
             } else {
-                mRect.left = priceSize * i + getPaddingLeft();
+                mRect.left = priceSize * i  + maxLeft + getPaddingLeft();
                 mRect.right = mRect.left + OFFSET * 2;
             }
             //将每个竖线的边界记录
@@ -237,8 +235,8 @@ public class RulerView extends View {
                     float left = imgRect.left + distance;
                     float right = imgRect.right + distance;
                     //如果左右坐标超出了横线左右位置则不做移动
-                    if (left < getPaddingLeft() - (mButtonImage.getIntrinsicWidth() / 2)
-                            || right > getMeasuredWidth() - getPaddingRight() + (mButtonImage.getIntrinsicWidth() / 2)) {
+                    if (left < getPaddingLeft() + maxLeft - mButtonImage.getIntrinsicWidth() / 2
+                            || right > getMeasuredWidth() - getPaddingRight() - maxRight + mButtonImage.getIntrinsicWidth() / 2) {
                         break;
                     }
                     //重新设置游标的位置
@@ -252,7 +250,7 @@ public class RulerView extends View {
                 if (isButton) {
                     //如果点击的是游标，则在停止移动后将游标设置到最近的竖线位置
                     //横线的宽度
-                    int lineWidth = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
+                    int lineWidth = getMeasuredWidth() - maxLeft - maxRight - getPaddingLeft() - getPaddingRight();
                     //每份间距大小
                     int price = lineWidth / (partSize - 1);
                     //计算当前游标中心点在那个比例
@@ -260,8 +258,8 @@ public class RulerView extends View {
                     //四舍五入计算位置
                     int size = (int) Math.round(v);
                     //设置游标边界
-                    imgRect.left = price * size + getPaddingLeft() - mButtonImage.getIntrinsicWidth() / 2;
-                    imgRect.right = price * size + getPaddingLeft() + mButtonImage.getIntrinsicWidth() / 2;
+                    imgRect.left = price * size + maxLeft + getPaddingLeft() - mButtonImage.getIntrinsicWidth() / 2;
+                    imgRect.right = price * size + maxLeft + getPaddingLeft() + mButtonImage.getIntrinsicWidth() / 2;
                     //监听回调移动数据
                     if (mListener != null) {
                         mListener.onRulerChange(size, mData.get(size));
@@ -324,6 +322,15 @@ public class RulerView extends View {
         for (int i = 0; i < partSize; i++) {
             varReacts.add(new Rect());
         }
+        maxLeft = Math.max(mButtonImage.getIntrinsicWidth() / 2
+                ,(int)(mData.get(0).getText().length() * mTextPaint.getTextSize() / 2));
+        maxRight = Math.max(mButtonImage.getIntrinsicWidth() / 2
+                ,(int)(mData.get(mData.size() - 1).getText().length() * mTextPaint.getTextSize() / 2));
+        imgRect.set(maxLeft - mButtonImage.getIntrinsicWidth() / 2 + getPaddingLeft()
+                ,(int) (getPaddingTop() + DEFAULT_TEXT_MARGIN + mTextPaint.getTextSize())
+                , maxLeft + getPaddingLeft() + mButtonImage.getIntrinsicWidth() / 2
+                ,(int) (getPaddingTop() + DEFAULT_TEXT_MARGIN + mTextPaint.getTextSize()) +
+                        mButtonImage.getIntrinsicHeight());
         invalidate();
     }
 

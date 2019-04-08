@@ -4,17 +4,17 @@
 ## 集成方法
 ```
 allprojects {
-		repositories {
+	repositories {
 			...
 			maven { url 'https://jitpack.io' }
-		}
 	}
+}
 ```
 
 ```
 dependencies {
-	        implementation 'com.github.ZhengJeff:RulerView:0.0.1'
-	}
+	 implementation 'com.github.ZhengJeff:RulerView:0.0.1'
+}
 ```
 ## 使用方法
 1. 
