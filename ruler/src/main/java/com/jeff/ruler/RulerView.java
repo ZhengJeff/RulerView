@@ -98,7 +98,7 @@ public class RulerView extends View {
     private OnRulerChangeListener mListener;
     private int maxLeft;
     private int maxRight;
-
+    private int currentPosition = 0；
 
     public RulerView(Context context) {
         this(context, null);
@@ -204,6 +204,11 @@ public class RulerView extends View {
             String text = mData.get(i).getText();
             canvas.drawText(text, mRect.centerX() - text.length() * 1.0f / 2 * mTextPaint.getTextSize(), imgRect.top - 10, mTextPaint);
         }
+        if(currentPosition != -1){
+            Rect rect = varReacts.get(currentPosition);
+            imgRect.left = rect.centerX() - mButtonImage.getIntrinsicWidth() / 2;
+            imgRect.right = rect.centerX() + mButtonImage.getIntrinsicWidth() / 2;
+        }
         //为游标设置边界
         mButtonImage.setBounds(imgRect);
         //绘制游标
@@ -220,6 +225,7 @@ public class RulerView extends View {
                     isButton = false;
                     break;
                 }
+                currentPosition = -1;
                 //如果是，记录点击的X坐标
                 isButton = true;
                 startX = event.getX();
@@ -261,6 +267,7 @@ public class RulerView extends View {
                     imgRect.left = price * size + maxLeft + getPaddingLeft() - mButtonImage.getIntrinsicWidth() / 2;
                     imgRect.right = price * size + maxLeft + getPaddingLeft() + mButtonImage.getIntrinsicWidth() / 2;
                     //监听回调移动数据
+                    currentPosition = size;
                     if (mListener != null) {
                         mListener.onRulerChange(size, mData.get(size));
                     }
@@ -271,6 +278,7 @@ public class RulerView extends View {
                         Rect rect = varReacts.get(i);
                         //计算点击位置是哪个竖线
                         if (rect.contains((int) event.getX(), (int) event.getY())) {
+                            currentPosition = i;
                             this.imgRect.left = rect.centerX() - mButtonImage.getIntrinsicWidth() / 2;
                             this.imgRect.right = rect.centerX() + mButtonImage.getIntrinsicWidth() / 2;
                             if (mListener != null) {
@@ -332,6 +340,27 @@ public class RulerView extends View {
                 ,(int) (getPaddingTop() + DEFAULT_TEXT_MARGIN + mTextPaint.getTextSize()) +
                         mButtonImage.getIntrinsicHeight());
         invalidate();
+    }
+    
+    /**
+    * 设置当前游标所在位置
+    **/
+    public void setCurrentPosition(final int position) {
+        if (mData == null || mData.isEmpty()) {
+            throw new RuntimeException("当前没有设置数据");
+        }
+        if (position < 0 || position >= mData.size()) {
+            throw new IndexOutOfBoundsException();
+        }
+        currentPosition = position;
+        invalidate();
+    }
+    
+    /**
+    * 获取当前游标所在位置
+    **/
+    public int getCurrentPosistion(){
+        return currentPosition;
     }
 
     /**
